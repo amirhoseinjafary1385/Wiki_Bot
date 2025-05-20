@@ -14,24 +14,48 @@ bot = Bot(
 	token=api,
 	default=DefaultBotProperties(parse_mode=ParseMode.HTML)
 )
+
+user_language = []	# Dictionary to store user language preferences
+
+print("Bot Started")
 dp = Dispatcher()
 router = Router()
-wiki.set_lang('fa')
 
 @router.message(Command('start'))
 async def welcome(pm: types.Message):
-    await pm.answer('Give me an Researchers...')	
+	user_id = pm.from_user.id
+	user_language[user_id] = 'fa'
+	wiki.set_lang('fa')
 
+	await pm.answer('''
+	<b>Welcome to wikipedia Bot!</b>
+	I can search wikipedia in persian or English language...
+
+	Commands:
+	/persian - Switch to Persian Wikipedia
+	/english - Switch to English Wikipedia
+	''')
+	if user.username:
+		await pm.answer(f"Hello @{user.username}! Give me a topic to search for.")
+	else:
+		await pm.answer(f"Hello {user.full_name}! Give me a topic to search for.")
+
+
+@router.message(Command('english'))
+async def set_english(pm: types.Message):
+	user_id = pm.from_user.id
+	user.languages[user_id] = 'en'
+	await pm.answer('Search language changed to <b>English</b>.')
 
 @router.message()
 async def wikip(pm: types.Message):
 	try:
 
-		#page = wiki.page(pm.text)
+		page = wiki.page(pm.text)
 		summary = wiki.summary(pm.text)
 		
 		result = f'''
-		<b>🦋📚 {page.text}</b>
+		<b>🦋📚 {page.title}</b>
 
 		🕸🕸🕸
 		{summary[:3000]}
